@@ -52,7 +52,7 @@ app.get('/', function (req, res) {
 app.get('/api/books', function(req, res) {
   // send all books as a json response
   db.Book.find()
-
+  // populate fills in the author id with all the author data
     .populate('author')
     .exec(function(err, books){
       if (err) { console.log(`index error: ${err}`); }
@@ -82,6 +82,7 @@ app.post('/api/books', (req , res) => {
     releaseDate: req.body.releaseDate,
   });
 
+  //this code will only add an author to a book if the author already exists
   db.Author.findOne({name: req.body.author}, function(err, author){
     newBook.author = author;
     newBook.save(function(err, book){
@@ -94,13 +95,30 @@ app.post('/api/books', (req , res) => {
   });
 });
 
+app.get('/api/authors', (req, res) => {
+  db.Author.find({}, (err, authors) => {
+    res.json(authors);
+  })
+})
+
 // UPDATE BOOK
 app.put('/api/books/:id', (req,res) => {
   // get book id from url params (`req.params`)
   let bookId = req.params.id;
   // get update body from req.body
   let updateBody = req.body;
+  
   console.log(updateBody);
+
+  // db.Book.findOne({_id:bookId}, (err, bookObj) => {
+  //   if(err){
+  //     return;
+  //   }
+  //   else{
+      
+  //   }
+  // })
+
   // find and update the book's attributes
   db.Book.findOneAndUpdate(
     { _id: bookId }, // search condition
